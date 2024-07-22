@@ -1,0 +1,46 @@
+# This workflow is adapted from the "install-dev" job by Hynek Schlawack (Jul 22, 2023),
+# <https://github.com/hynek/structlog/blob/549c414acc3abed7856347a48bfc827d9e900399/.github/workflows/ci.yml>, licensed under MIT.
+# This workflow has been modified and customized for use in this repository.
+
+# This reusable workflow can be used in another repository by creating a `.github/workflows/your-workflow-file.yml` file and adding the following contents:
+#
+# ```yaml
+# uses: rdmorganiser/.github/.github/workflows/_dev.yml@main
+# with:
+#   package-name: my-package
+#   extras: my-extras
+# ```
+
+name: Test Development Setup
+
+on:
+  workflow_call:
+    inputs:
+      package-name:
+        description: Python package name to use, e.g. "rdmo" (as in "pip install rdmo")
+        type: string
+        required: true
+      extras:
+        description: Optional dependency group to use, e.g. "dev" (as in "pip install rdmo[dev]")
+        type: string
+        default: dev
+
+jobs:
+
+  dev-setup:
+    name: "Test Development Setup (${{ matrix.os }})"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    env:
+      PACKAGE: ${{ inputs.package-name }}
+      EXTRAS: ${{ inputs.extras }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -Im pip install --editable ".[$EXTRAS]"
+      - run: python -Ic 'import $PACKAGE; print($PACKAGE.__version__)'
