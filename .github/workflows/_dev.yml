@@ -40,4 +40,4 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: python -Im pip install --editable ".[${{ inputs.extras }}]"
-      - run: python -Ic 'import ${{ inputs.extras }}; print(${{ inputs.extras }}.__version__)'
+      - run: python -Ic 'import ${{ inputs.package-name }}; print(${{ inputs.package-name }}.__version__)'
